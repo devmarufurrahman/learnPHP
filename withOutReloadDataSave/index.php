@@ -15,11 +15,15 @@
 
 <body>
 
-
+    <!-- status section start  -->
     <div class="container statusMsg mt-5">
-        
+
     </div>
 
+    <!-- status section ends  -->
+
+
+    <!-- input section start  -->
 
     <div class="container data-input mt-5 mb-5">
         <form>
@@ -33,13 +37,17 @@
                 <input type="email" class="form-control email" id="exampleInputEmail1" aria-describedby="emailHelp">
 
             </div>
-            
+
 
             <button type="submit" class="btn btn-primary dataAddAjax">Save</button>
         </form>
     </div>
 
+    <!-- input section ends -->
 
+
+
+    <!-- output section start  -->
 
     <div class="container output-data">
         <table class="table table-border table-success table-striped">
@@ -52,13 +60,55 @@
                 </tr>
             </thead>
             <tbody class="data">
-                
+
 
             </tbody>
         </table>
     </div>
 
 
+    <!-- output section ends -->
+
+
+
+    <!-- modal view section start  -->
+
+    <div class="modal dataViewModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Data View</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <table class="table table-border table-success table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                </tr>
+            </thead>
+            <tbody class="modalViewData">
+            <tr>
+                                <td scope="row" class="viewId"></td>
+                                <td class="viewName"></td>
+                                <td class="viewEmail"></td>
+                                
+                            </tr>`
+
+            </tbody>
+        </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal view section ends -->
 
 
 
@@ -74,43 +124,77 @@
         $(document).ready(function () {
             getData();
 
-            $('.dataAddAjax').click(function (e) { 
-                e.preventDefault();
 
-                var dname = $('.name').val();
-                var demail = $('.email').val(); 
+            // View Data with modal starts
+
+            $(document).on("click", ".viewBtn", function () {
+                var data_id = $(this).closest('tr').find('.dataId').text();
 
 
-                if(dname !='' & demail !=''){
-                    $.ajax({
+                $.ajax({
                     type: "POST",
                     url: "./ajax-crud/post.php",
                     data: {
-                        'isData': true,
-                        'Name': dname,
-                        'Email': demail
+                        'isView': true,
+                        'dataId': data_id
                     },
-                    
                     success: function (response) {
-                        $('.statusMsg').append(
-                        `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        $.each(response, function (key, dataView) {
+                            $('.viewId').text(dataView['id']);
+                            $('.viewName').text(dataView['Name']);
+                            $('.viewEmail').text(dataView['Email']);
+                        })
+
+                        $('.dataViewModal').modal('show');
+                        
+                        
+                    }
+                });
+            });
+
+            // View Data with modal ends
+
+
+
+            // Data Output Table starts
+
+            $('.dataAddAjax').click(function (e) {
+                e.preventDefault();
+
+                var dname = $('.name').val();
+                var demail = $('.email').val();
+
+
+                if (dname != '' & demail != '') {
+                    $.ajax({
+                        type: "POST",
+                        url: "./ajax-crud/post.php",
+                        data: {
+                            'isData': true,
+                            'Name': dname,
+                            'Email': demail
+                        },
+
+                        success: function (response) {
+                            $('.statusMsg').append(
+                                `<div class="alert alert-success alert-dismissible fade show" role="alert">
                             <strong>Hey!</strong> Successfully Data Stored.
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>`
 
-                        );
-                        
-                        
-                        $('.data').html('');
-                        getData();
-                        
-                        $('.name').val('');
-                        $('.email').val(''); 
-                    }
-                });
+                            );
+
+
+                            $('.data').html('');
+                            getData();
+
+                            $('.name').val('');
+                            $('.email').val('');
+                        }
+                    });
                 }
-                else{
-                    
+                else {
+
                     $('.statusMsg').append(
                         `<div class="alert alert-warning alert-dismissible fade show" role="alert">
                             <strong>Hey!</strong> Please input all fields.
@@ -118,37 +202,46 @@
                         </div>`
                     );
                 }
-                
-                
+
+
             });
+
+
+            // Data Output Table ends
         });
+
+
+
+        // Fetching Data from Database 
+
         function getData() {
             $.ajax({
                 type: "GET",
                 url: "./ajax-crud/fetch.php",
                 success: function (response) {
-                    
 
-                    if(response){
+
+                    if (response) {
                         $.each(response, function (key, value) {
-                        // console.log(value)
-                        $('.data').append(`<tr>
-                                <th scope="row">`+value['id']+`</th>
-                                <td>`+ value['Name']+`</td>
-                                <td>`+ value['Email']+`</td>
+                            // console.log(value)
+                            $('.data').append(`<tr>
+                                <td scope="row" class="dataId">`+ value['id'] + `</td>
+                                <td>`+ value['Name'] + `</td>
+                                <td>`+ value['Email'] + `</td>
                                 <td>
+                                    <button class="btn btn-primary viewBtn">View</button>
                                     <button class="btn btn-success">Edit</button>
-                                    <button class="btn btn-warning">Delete</button>
+                                    <button class="btn btn-danger">Delete</button>
                                 </td>
                             </tr>`);
-                         })
-                    } else{
+                        })
+                    } else {
                         $('.statusMsg').append(
-                        `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            `<div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <strong>Hey!</strong> No Data Found.
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>`
-                    );
+                        );
                     }
                 }
             });
