@@ -81,34 +81,82 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                <table class="table table-border table-success table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                </tr>
-            </thead>
-            <tbody class="modalViewData">
-            <tr>
+                    <table class="table table-border table-success table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody class="modalViewData">
+                            <tr>
                                 <td scope="row" class="viewId"></td>
                                 <td class="viewName"></td>
                                 <td class="viewEmail"></td>
-                                
+
                             </tr>`
 
-            </tbody>
-        </table>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    
+
                 </div>
             </div>
         </div>
     </div>
 
     <!-- modal view section ends -->
+
+
+
+
+    <!-- modal edit section start  -->
+
+    <div class="modal dataEditModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Data View</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="exampleInputNum1" class="form-label">Id</label>
+                            <input type="number" class="form-control idEdit" id="exampleInputId1"
+                                aria-describedby="numHelp">
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputText1" class="form-label">Name</label>
+                            <input type="text" class="form-control nameEdit" id="exampleInputText1"
+                                aria-describedby="textHelp">
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Email address</label>
+                            <input type="email" class="form-control emailEdit" id="exampleInputEmail1"
+                                aria-describedby="emailHelp">
+
+                        </div>
+
+
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success dataUpdateAjax">Update</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal edit section ends -->
 
 
 
@@ -123,6 +171,92 @@
     <script>
         $(document).ready(function () {
             getData();
+
+
+            // Data Update Form starts
+
+            $('.dataUpdateAjax').click(function (e) {
+                e.preventDefault();
+
+                var id = $('.idEdit').val();
+                var name = $('.nameEdit').val();
+                var email = $('.emailEdit').val();
+
+
+                if (name != '' & email != '') {
+                    $.ajax({
+                        type: "POST",
+                        url: "./ajax-crud/post.php",
+                        data: {
+                            'isUpdate': true,
+                            'id': id,
+                            'Name': name,
+                            'Email': email
+                        },
+
+                        success: function (response) {
+                            $('.dataEditModal').modal('hide');
+                            $('.statusMsg').append(
+                                `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>Hey!</strong> Successfully Data Update.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>`
+
+                            );
+
+                            $('.data').html('');
+                            getData();
+
+                        }
+                    });
+                }
+                else {
+
+                    $('.statusMsg').append(
+                        
+                        `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Hey!</strong> Please input all fields.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`
+                    );
+                }
+
+
+            });
+
+
+            // Data Update Form ends
+
+
+            // Edit Data fetch starts 
+
+            $(document).on("click", ".editBtn", function () {
+                var data_id = $(this).closest('tr').find('.dataId').text();
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "./ajax-crud/post.php",
+                    data: {
+                        'isEdit': true,
+                        'dataId': data_id
+                    },
+                    success: function (response) {
+
+
+                        $.each(response, function (key, dataEdit) {
+                            $('.idEdit').val(dataEdit['id']);
+                            $('.nameEdit').val(dataEdit['Name']);
+                            $('.emailEdit').val(dataEdit['Email']);
+                        })
+
+                        $('.dataEditModal').modal('show');
+                    }
+                });
+            });
+
+            // Edit Data fetch ends
+
 
 
             // View Data with modal starts
@@ -146,8 +280,8 @@
                         })
 
                         $('.dataViewModal').modal('show');
-                        
-                        
+
+
                     }
                 });
             });
@@ -156,7 +290,7 @@
 
 
 
-            // Data Output Table starts
+            // Data Input Form starts
 
             $('.dataAddAjax').click(function (e) {
                 e.preventDefault();
@@ -207,7 +341,7 @@
             });
 
 
-            // Data Output Table ends
+            // Data Input Form ends
         });
 
 
@@ -230,7 +364,7 @@
                                 <td>`+ value['Email'] + `</td>
                                 <td>
                                     <button class="btn btn-primary viewBtn">View</button>
-                                    <button class="btn btn-success">Edit</button>
+                                    <button class="btn btn-success editBtn">Edit</button>
                                     <button class="btn btn-danger">Delete</button>
                                 </td>
                             </tr>`);
