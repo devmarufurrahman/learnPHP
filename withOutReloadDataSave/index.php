@@ -24,7 +24,6 @@
 
 
     <!-- input section start  -->
-
     <div class="container data-input mt-5 mb-5">
         <form>
             <div class="mb-3">
@@ -48,7 +47,6 @@
 
 
     <!-- output section start  -->
-
     <div class="container output-data">
         <table class="table table-border table-success table-striped">
             <thead>
@@ -71,8 +69,7 @@
 
 
 
-    <!-- modal view section start  -->
-
+    <!-- modal view section start  -->  
     <div class="modal dataViewModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -173,6 +170,38 @@
             getData();
 
 
+
+            // Delete Data  starts 
+            $(document).on("click", ".deleteBtn", function () {
+                var data_id = $(this).closest('tr').find('.dataId').text();
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "./ajax-crud/post.php",
+                    data: {
+                        'isDelete': true,
+                        'dataId': data_id
+                    },
+                    success: function (response) {
+
+                        $('.statusMsg').append(
+                            `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Hey!</strong> Data Deleted Successfully.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`
+                        );
+
+                        $('.data').html('');
+                        getData();
+                        
+                    }
+                });
+            });
+
+            // Delete Data  ends
+
+
             // Data Update Form starts
 
             $('.dataUpdateAjax').click(function (e) {
@@ -224,12 +253,10 @@
 
             });
 
-
             // Data Update Form ends
 
 
             // Edit Data fetch starts 
-
             $(document).on("click", ".editBtn", function () {
                 var data_id = $(this).closest('tr').find('.dataId').text();
 
@@ -365,7 +392,7 @@
                                 <td>
                                     <button class="btn btn-primary viewBtn">View</button>
                                     <button class="btn btn-success editBtn">Edit</button>
-                                    <button class="btn btn-danger">Delete</button>
+                                    <button class="btn btn-danger deleteBtn">Delete</button>
                                 </td>
                             </tr>`);
                         })

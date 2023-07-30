@@ -75,4 +75,14 @@
         $query_run = mysqli_query($conn,$query);
     }
 
+
+    //Data delete from Database
+    if(isset($_POST['isDelete'])){
+
+        $id = $_POST['dataId'];
+
+        $query = "DELETE FROM Data WHERE id=$id";
+        $query_run = mysqli_query($conn,$query);
+    }
+
 ?>
